@@ -1,10 +1,49 @@
 # Following the Money: Latvian Open Data for Anti-Corruption
 
+![Corruption or AML Index of Public Authorities or Government Sector: title slide of the final hackathon presentation](docs/slides/01-title.jpg)
+
 **Hackathon-winning project** from the Nordic-Baltic Anti-Corruption Open Data Hackathon, held online on January 25-26, 2024.
 
 This project explores how public data can help journalists, civil society, and public institutions spot relationships that may merit further scrutiny. It brings together Latvian political-donation records, beneficial ownership data, public-benefit organization records, and offshore-leak data to explore connections between donors, legal entities, public-benefit organizations, and offshore-leak officers.
 
 The hackathon was organized by Transparency International Latvia (Delna), in cooperation with Transparency International chapters in Estonia and Finland, and funded by the Nordic Council of Ministers. The event invited participants to develop practical ideas for using open data to support transparency and accountable governance. See the [official press release](https://delna.lv/en/2024/01/05/press-release-transparency-international-latvia-invites-to-participate-in-the-anti-corruption-open-data-hackathon/) for details.
+
+## Project overview
+
+The final presentation is in [`CorruptionIndex_AML_overview.pdf`](CorruptionIndex_AML_overview.pdf). It proposes a corruption and anti-money-laundering (AML) risk index that works at two levels.
+
+### Macro level: which government sectors are most exposed
+
+![Macro-level slide: rules-and-practices pillars of a national integrity system and the sectors they cover](docs/slides/03-macro-level.jpg)
+
+The macro-level index is top-down. It scores the country and its government sectors based on legislation and open data, using the pillars of a national integrity system: the executive, parliament, the judiciary, public administration, public companies and state holdings, law enforcement, business, and civil society.
+
+### Micro level: which individuals and companies merit a closer look
+
+![Micro-level slide: datasets flow into static rules or outlier detection, producing high-risk individuals for human review](docs/slides/04-micro-level.jpg)
+
+The micro-level index is bottom-up. It combines personal and business finance datasets, such as company ownership and political donations, and applies static rules and machine-learning outlier detection to flag individuals and companies. Anyone flagged then goes to a human-in-the-loop review, for example checking bank records, to collect actual evidence.
+
+### Combining both levels
+
+![Combined slide: the macro sector index and micro individual index meet in an evidence step that produces high-risk, government-related individuals](docs/slides/05-macro-micro-combined.jpg)
+
+Each index is calculated as *machine-learning outliers + rules*. Bringing them together narrows the focus to individuals who score high on the micro index **and** work in, or are closely related to people in, a high-scoring government sector. Those cases are then the priority for tracking bank records and financial statements.
+
+### What was built during the hackathon
+
+![Overall process flow: four Latvian datasets merged, then screened by rules and clustering to produce high-risk individuals](docs/slides/07-process-flow.jpg)
+
+The demo implements the micro level for Latvia in [`AntiCorruption.ipynb`](AntiCorruption.ipynb). It merges four datasets: beneficial business owners, public-benefit organizations, political donations, and officers in offshore-leak data such as the Pandora Papers. It then screens the merged data in two ways:
+
+- **Rules:** a person owns more than 3 companies, has made more than 3 political-party donations, has donated more than EUR 10,000 in total, or matches an offshore shell-company officer.
+- **Clustering:** K-means (and an exploratory DBSCAN run) on the combined features.
+
+**Result:** of roughly 133,000 beneficial owners, K-means clustering on five variables singled out about 100 high-risk individuals for further review.
+
+**Limitations noted in the presentation:** a high index does not necessarily mean corrupt behavior, human analysis is still needed to gather evidence that would hold up in court, and open datasets may be incomplete or manipulated.
+
+**Future applicability:** integrate more open datasets at the micro level, monitor flagged individuals for factual evidence, and use LLMs at the macro level to assess anti-corruption and AML legislation.
 
 ## What the analysis explores
 
@@ -14,7 +53,7 @@ The main analysis is in [`AntiCorruption.ipynb`](AntiCorruption.ipynb). It:
 - Highlights donors who gave to multiple political parties, made large total donations, or own multiple legal entities.
 - Cross-references company registration numbers with public-benefit organization records.
 - Uses fuzzy name matching to compare Latvian beneficial owners with officers in the included offshore-leak dataset, then exports candidate matches to `ShellOwners.csv`.
-- Experiments with K-means clustering on combined features as an exploratory analysis.
+- Experiments with K-means and DBSCAN clustering on combined features as an exploratory analysis.
 
 These are investigative leads and exploratory analyses, not findings of corruption or evidence of wrongdoing. In particular, fuzzy name matches can be false positives and must be independently verified.
 
@@ -30,6 +69,8 @@ These are investigative leads and exploratory analyses, not findings of corrupti
 | `ShellOwners.csv` | Export of candidate owner/offshore-leak matches. |
 | `violations of procurement procedures/` | Procurement-complaint statistics by period; these files are included as related hackathon data and are not currently loaded by the main notebook. |
 | `Local.ipynb`, `Untitled.ipynb` | Additional working notebooks. |
+| `CorruptionIndex_AML_overview.pdf` | Final hackathon presentation. |
+| `docs/slides/` | Slide images used in this README. |
 
 ## Data sources
 
